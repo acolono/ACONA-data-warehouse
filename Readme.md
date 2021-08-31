@@ -3,9 +3,11 @@ ACONA Data Warehouse
 Provides persistent storage for ACONA Data, using a timescale database.
 
 HOW TO USE
-docker-compose up -d
+
+$ docker-compose up -d
 
 CONFIGURATION
+
 Postgres user “app_user”: To connect to the database
 Postgres user “api_user”: For anonymous usage, e.g. to use the API.
 
