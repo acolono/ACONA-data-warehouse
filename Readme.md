@@ -7,7 +7,6 @@ It uses postgREST to turn the database into a RESTful API.
 https://www.timescale.com/
 https://postgrest.org/
 
-
 ##HOW TO USE
 First set your passwords and secrets in the .env file.
 See https://postgrest.org/en/v8.0/tutorials/tut1.html about authentication
@@ -19,7 +18,6 @@ $ docker-compose up -d
 Delete the pgdata folder and run
 $ docker-compose up --build --force-recreate
 when you want to start from scratch again.
-
 
 ##CONFIGURATION
 Postgres user "acona_admin": Will be created by docker for administration purpose.
