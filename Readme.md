@@ -1,29 +1,57 @@
-ACONA Data Warehouse
+#ACONA Data Warehouse
 
 Provides persistent storage for ACONA Data, using a timescale database.
 
-HOW TO USE
-docker-compose up -d
+It uses postgREST to turn the database into a RESTful API.
 
-CONFIGURATION
-Postgres user “app_user”: To connect to the database
-Postgres user “api_user”: For anonymous usage, e.g. to use the API.
+https://www.timescale.com/
+https://postgrest.org/
 
-Postgres schema: Public
 
-LOGIN IN POSTGRES/TIMESCALE
+##HOW TO USE
+First set your passwords and secrets in the .env file.
+See https://postgrest.org/en/v8.0/tutorials/tut1.html about authentication
+process and token generation.
+
+Then run
+$ docker-compose up -d
+
+Delete the pgdata folder and run
+$ docker-compose up --build --force-recreate
+when you want to start from scratch again.
+
+
+##CONFIGURATION
+Postgres user "acona_admin": Will be created by docker for administration purpose.
+Postgres user "app_user": For authenticated queries, e.g. writing data via API.
+Postgres user "api_anon": For anonymous usage, e.g. for public API queries.
+Postgres user "authenticator": A user with limited permissions. It's a chameleon whose job is to “become” other users to service authenticated HTTP requests.
+
+See more about Postgrest authentication here: https://postgrest.org/en/v4.3/auth.html
+
+Postgres schema for API usage: api
+
+##LOGIN IN POSTGRES/TIMESCALE
 
 $ docker ps
-$ docker exec -it 8becccecec01 bash (timescale/timescaledb:latest-pg13 container)
+$ docker exec -it CONTAINER bash (timescale/timescaledb:latest-pg13 container)
 $ psql -U app_user -d acona_data_warehouse -h localhost
 
 Now you are logged in psql.
 
 
-QUERY DATA VIA API 
+##QUERY DATA VIA API 
 
 Locally you can run the following curl commands: 
-$ curl 0.0.0.0:3000/metric_d_bounces
-$ curl IP:3000/metric_d_bounces?select=*&url=URL&order=time.desc&limit=30 -vv
+$ curl localhost:3000/metric_d_bounces
+$ curl localhost:3000/metric_d_bounces?select=*&url=URL&order=time.desc&limit=30
 
-More documentation about API usage is coming soon.
+##WRITE DATA VIA API 
+
+Locally you can run a curl command like this:
+
+$ export TOKEN="<paste your token here>"
+$ curl http://localhost:3000/metric_d_bounces -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"url": "https://acona.app", "value": "10", "date": "2021-08-19"}'
+
+
+More documentation about table structure and API usage is coming soon.

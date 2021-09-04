@@ -10,6 +10,7 @@ services:
       POSTGRES_PASSWORD: ${ACONA_ADMIN_PW}
     volumes:
       - "./pgdata:/var/lib/postgresql/data" # persist data
+      - "./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d" # execute sql in here (see https://hub.docker.com/_/postgres)
   postgrest:
     image: postgrest/postgrest
     ports:
@@ -18,8 +19,8 @@ services:
       - db:db
     environment:
       PGRST_DB_URI: postgres://acona_admin:${ACONA_ADMIN_PW}@db:5432/acona_data_warehouse
-      PGRST_DB_SCHEMA: public
-      PGRST_DB_ANON_ROLE: api_user #In production this role should not be the same as the one used for the connection
+      PGRST_DB_SCHEMA: api
+      PGRST_DB_ANON_ROLE: api_anon #In production this role should not be the same as the one used for the connection
       PGRST_JWT_SECRET: ${ACONA_SECRET}
     depends_on:
       - db
