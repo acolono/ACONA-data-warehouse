@@ -6,27 +6,39 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_DB: acona_data_warehouse
-      POSTGRES_USER: app_user
-      POSTGRES_PASSWORD: test
+      POSTGRES_USER: acona_admin
+      POSTGRES_PASSWORD: ${ACONA_ADMIN_PW}
     volumes:
-      - "./pgdata:/var/lib/postgresql/data"
-  pgrest:
+      - "./pgdata:/var/lib/postgresql/data" # persist data
+      - "./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d" # execute sql in here (see https://hub.docker.com/_/postgres)
+  postgrest:
     image: postgrest/postgrest
     ports:
       - "3000:3000"
     links:
       - db:db
     environment:
-      PGRST_DB_URI: postgres://app_user:test@db:5432/acona_data_warehouse
-      PGRST_DB_SCHEMA: public
-      PGRST_DB_ANON_ROLE: api_user #In production this role should not be the same as the one used for the connection
+      PGRST_DB_URI: postgres://acona_admin:${ACONA_ADMIN_PW}@db:5432/acona_data_warehouse
+      PGRST_DB_SCHEMA: api
+      PGRST_DB_ANON_ROLE: api_anon #In production this role should not be the same as the one used for the connection
+      PGRST_JWT_SECRET: ${ACONA_SECRET}
     depends_on:
       - db
+  postgrest-proxy:
+    depends_on:
+      - postgrest
+    image: nginx:latest
+    ports:
+      - "3001:3001"
+    volumes:
+      - "./postgrest-proxy/nginx.conf:/etc/nginx/conf.d/default.conf"
   swagger:
     image: swaggerapi/swagger-ui
     ports:
       - "8081:8081"
     expose:
       - "8081"
+    depends_on:
+      - postgrest-proxy
     environment:
       API_URL: http://localhost:3001/
