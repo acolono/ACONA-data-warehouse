@@ -13,10 +13,10 @@ See https://postgrest.org/en/v8.0/tutorials/tut1.html about authentication
 process and token generation.
 
 Then run
-$ docker-compose up -d
+`docker-compose up -d`.
 
 Delete the pgdata folder and run
-$ docker-compose up --build --force-recreate
+`docker-compose up --build --force-recreate`
 when you want to start from scratch again.
 
 ## CONFIGURATION
@@ -34,11 +34,11 @@ Postgres schema for API usage: api
 
 ## LOGIN IN POSTGRES/TIMESCALE
 
-$ docker ps
-
-$ docker exec -it CONTAINER bash (timescale/timescaledb:latest-pg13 container)
-
-$ psql -U app_user -d acona_data_warehouse -h localhost
+```
+docker ps
+docker exec -it CONTAINER bash (timescale/timescaledb:latest-pg13 container)
+psql -U app_user -d acona_data_warehouse -h localhost
+```
 
 Now you are logged in psql.
 
@@ -46,17 +46,18 @@ Now you are logged in psql.
 
 Locally you can run a curl command like this for all api tables:
 
-$ curl localhost:3000/metric_d_bounces
-
-$ curl localhost:3000/metric_d_bounces?select=*&url=URL&order=time.desc&limit=7
+```
+curl localhost:3000/metric_d_bounces
+curl localhost:3000/metric_d_bounces?select=*&url=URL&order=time.desc&limit=7
+```
 
 ## WRITE DATA VIA API 
 
 To write data you need a JWT Token:
 
-$ export TOKEN="<paste your token here>"
-  
-$ curl http://localhost:3000/metric_d_bounces -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"url": "https://acona.app", "value": "10", "date": "2021-08-19"}'
-
+```
+export TOKEN="<paste your token here>"
+curl http://localhost:3000/metric_d_bounces -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"url": "https://acona.app", "value": "10", "date": "2021-08-19"}'
+ ```
 
 More documentation about table structure and API usage is coming soon.
