@@ -5,6 +5,7 @@ Provides persistent storage for ACONA Data, using a timescale database.
 It uses postgREST to turn the database into a RESTful API.
 
 https://www.timescale.com/
+
 https://postgrest.org/
 
 ## HOW TO USE
@@ -37,10 +38,17 @@ Postgres schema for API usage: api
 ```
 docker ps
 docker exec -it CONTAINER bash (timescale/timescaledb:latest-pg13 container)
-psql -U app_user -d acona_data_warehouse -h localhost
+psql -U acona_admin -d acona_data_warehouse -h localhost
 ```
 
 Now you are logged in psql.
+
+## Schema Cache Reloading
+
+Sometimes needed when you create new functions.
+```
+docker kill -s SIGUSR1 CONTAINER (postgrest/postgrest container)
+```
 
 ## QUERY DATA VIA API 
 
