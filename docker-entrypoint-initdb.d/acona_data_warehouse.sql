@@ -129,6 +129,32 @@ CREATE TABLE api.metric_success_score_ratio(
 SELECT create_hypertable('api.metric_success_score_ratio', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_success_score_ratio (url, date DESC);
 
+/* RULES AND SUCCESS SCORES */
+
+CREATE TABLE api.metric_rules_eval(
+    url TEXT NOT NULL,
+    date DATE NOT NULL,
+    result BOOLEAN,
+    rule_id VARCHAR(30) NOT NULL
+);
+SELECT create_hypertable('api.metric_rules_eval', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_rules_eval(rule_id, url, date DESC);
+
+CREATE TABLE internal.acona_rules(
+    rule_id VARCHAR(30) NOT NULL PRIMARY KEY,
+    title_en TEXT,
+    title_de TEXT,
+    recommendation_en TEXT,
+    recommendation_de TEXT,
+    variable VARCHAR(30) NOT NULL,
+    category TEXT,
+    relevance INTEGER, /* 1-3 */
+    indication VARCHAR(5) NOT NULL, /* green, yellow, red */
+    condition JSON NOT NULL,
+    more_de TEXT,
+    more_en TEXT
+);
+
 /*INTERNAL TABLES*/
 
 CREATE TABLE internal.urls(
@@ -155,6 +181,14 @@ CREATE TABLE internal.domains(
     users INTEGER[],
     synonyms TEXT[]
 );
+
+CREATE TABLE internal.var_calc_dates(
+    variable VARCHAR(30) NOT NULL,
+    date DATE NOT NULL,
+    url TEXT NOT NULL
+);
+SELECT create_hypertable('internal.var_calc_dates', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON internal.var_calc_dates(variable, url);
 
 /*FUNCTIONS*/
 
@@ -186,6 +220,57 @@ WHERE urls.domain_id = (
     FROM internal.domains domains
     WHERE domains.domain_name = $1
 );
+$$ LANGUAGE SQL IMMUTABLE
+    SECURITY DEFINER
+    SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.recommendations(url TEXT, date DATE DEFAULT now(), indication TEXT DEFAULT 'red')
+    RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
+SELECT
+    rules.indication,
+    rules.title_en,
+    rules.title_de,
+    rules.recommendation_en,
+    rules.recommendation_de,
+    eval.date,
+    rules.more_de,
+    rules.more_en,
+    rules.category,
+    rules.relevance
+FROM internal.acona_rules rules
+    INNER JOIN api.metric_rules_eval eval
+        ON (rules.rule_id = eval.rule_id
+            AND eval.date=$2
+            AND eval.url = $1)
+WHERE rules.indication = $3;
+$$ LANGUAGE SQL IMMUTABLE
+    SECURITY DEFINER
+    SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red')
+    RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
+SELECT
+    rules.indication,
+    rules.title_en,
+    rules.title_de,
+    rules.recommendation_en,
+    rules.recommendation_de,
+    eval.date,
+    rules.more_de,
+    rules.more_en,
+    rules.category,
+    rules.relevance
+    FROM internal.acona_rules rules
+    INNER JOIN api.metric_rules_eval eval
+        ON (rules.rule_id = eval.rule_id
+            AND eval.date=(
+                SELECT max(date)
+                FROM internal.var_calc_dates calc_dates
+                WHERE calc_dates.url = $1
+                AND calc_dates.variable = 'metric_rules_eval'
+            )
+        AND eval.url = $1)
+    WHERE rules.indication = $2;
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
@@ -243,3 +328,29 @@ VALUES
 ('https://www.acona.app/about', '2021-08-26', 3),
 ('https://www.acona.app/about', '2021-08-27', 100),
 ('https://www.acona.app/about', '2021-08-28', 5);
+INSERT INTO internal.acona_rules(rule_id, title_en, recommendation_en, variable, indication, condition, more_en) VALUES
+('pagetitle_red', 'Pagetitle', 'This page does not have a page title. Go and create one!', 'page_title_char_count', 'red', '{"<" : [ { "var" : "var" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_green', 'Pagetitle', 'This page does have a page title. Good job!', 'page_title_char_count', 'green', '{"<" : [ { "var" : "var" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+INSERT INTO api.metric_rules_eval(url, date, result, rule_id)
+VALUES
+('https://www.acona.app/about', '2021-09-05', TRUE, 'pagetitle_red'),
+('https://www.acona.app/about', '2021-09-07', FALSE, 'pagetitle_red'),
+('https://www.acona.app/about', '2021-09-08', FALSE, 'pagetitle_red'),
+('https://www.acona.app/about', '2021-09-05', TRUE, 'pagetitle_green'),
+('https://www.acona.app/about', '2021-09-06', TRUE, 'pagetitle_green'),
+('https://www.acona.app/about', '2021-09-06', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/about', '2021-09-07', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/metrics', '2021-09-07', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/about', '2021-09-07', FALSE, 'pagetitle_green'),
+('https://www.acona.app/about', '2021-09-08', FALSE, 'pagetitle_green'),
+('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_green'),
+('https://www.acona.app/metrics', '2021-09-07', FALSE, 'pagetitle_green'),
+('https://www.acona.app/metrics', '2021-09-08', FALSE, 'pagetitle_green'),
+('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_red'),
+('https://www.acona.app/metrics', '2021-09-07', FALSE, 'pagetitle_red'),
+('https://www.acona.app/metrics', '2021-09-08', FALSE, 'pagetitle_red');
+INSERT INTO internal.var_calc_dates(variable, date, url)
+VALUES
+('metric_rules_eval', '2021-09-06', 'https://www.acona.app/about'),
+('metric_rules_eval', '2021-09-06', 'https://www.acona.app/metrics');
