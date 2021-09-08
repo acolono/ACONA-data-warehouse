@@ -1,4 +1,5 @@
 CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
+SET timezone = 'Europe/Vienna';
 CREATE SCHEMA api;
 CREATE SCHEMA internal;
 
@@ -37,6 +38,62 @@ SELECT create_hypertable('api.metric_d_unique_visits', 'date', create_default_in
 CREATE INDEX ON api.metric_d_unique_visits(url, date DESC);
 
 /*PAGE VARIABLES*/
+
+CREATE TABLE api.var_page_ttfb_seconds(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_ttfb_seconds', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_ttfb_seconds (url, datetime DESC);
+
+CREATE TABLE api.var_page_h1_number(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_h1_number', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_h1_number(url, datetime DESC);
+
+CREATE TABLE api.var_page_metadescription(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_page_metadescription', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_metadescription(url, datetime DESC);
+
+CREATE TABLE api.var_page_word_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_word_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_word_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_content(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_page_content', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_content(url, datetime DESC);
+
+CREATE TABLE api.var_page_title(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_page_title', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_title(url, datetime DESC);
+
+CREATE TABLE api.var_page_content_html(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_page_content_html', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_content_html(url, datetime DESC);
 
 /*SUCCESS SCORES*/
 
