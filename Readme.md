@@ -49,19 +49,27 @@ Sometimes needed when you create new functions.
 ```
 docker kill -s SIGUSR1 CONTAINER (postgrest/postgrest container)
 ```
+## GET YOUR JWT TOKEN
+For using the api you need to have your personal JWT Token with the following payload:
+```
+{
+  "role": "app_user",
+  "email": "mail@mail.com"
+}
+```
+Of course you can change the internal.users table accordingly. 
+More: https://postgrest.org/en/v4.3/auth.html
 
 ## QUERY DATA VIA API 
 
 Locally you can run a curl command like this for all api tables:
 
 ```
-curl localhost:3000/metric_d_bounces
-curl localhost:3000/metric_d_bounces?select=*&url=URL&order=time.desc&limit=7
+export TOKEN="<paste your token here>"
+curl -G "localhost:3000/rpc/acona_urls_success" -d domain=https://www.acona.app -H "Authorization: Bearer $TOKEN";
 ```
 
 ## WRITE DATA VIA API 
-
-To write data you need a JWT Token:
 
 ```
 export TOKEN="<paste your token here>"

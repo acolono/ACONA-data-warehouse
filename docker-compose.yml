@@ -22,6 +22,7 @@ services:
       PGRST_DB_SCHEMA: api
       PGRST_DB_ANON_ROLE: api_anon #In production this role should not be the same as the one used for the connection
       PGRST_JWT_SECRET: ${ACONA_SECRET}
+      PGRST_PRE_REQUEST: "auth.check_token"
     depends_on:
       - db
   postgrest-proxy:

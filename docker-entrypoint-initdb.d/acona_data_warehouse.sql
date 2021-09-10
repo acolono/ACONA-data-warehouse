@@ -279,7 +279,7 @@ $$ LANGUAGE SQL IMMUTABLE
 
 create role api_anon;
 grant usage on schema api to api_anon;
-grant select ON ALL TABLES IN SCHEMA api to api_anon;
+---grant select ON ALL TABLES IN SCHEMA api to api_anon;
 
 create role authenticator noinherit login password 'CHANGEME';
 grant api_anon to authenticator;
@@ -289,6 +289,28 @@ grant app_user to authenticator;
 
 grant usage on schema api to app_user;
 grant all ON ALL TABLES IN SCHEMA api to app_user;
+
+/* Add our own permission check*/
+create schema auth;
+grant usage on schema auth to api_anon, app_user;
+
+create or replace function auth.check_token() returns void
+    language plpgsql
+as $$
+begin
+    -- check if jwt token is from an active user
+    -- Note: For multi tenant use check also access to domain/urls here or in rpc functions.
+    if current_setting('request.jwt.claim.email', true) = NULL or not exists(select user_id
+        from internal.users
+        where status = 't'
+        and mail = current_setting('request.jwt.claim.email', true))
+    then
+        raise insufficient_privilege
+        using hint = 'Access denied.';
+    end if;
+end
+$$ SECURITY DEFINER
+   SET search_path = internal, pg_temp;
 
 /*EXAMPLE CONTENT*/
 INSERT INTO internal.urls(url, user_id, domain_id, status, intervall, pagetype)
