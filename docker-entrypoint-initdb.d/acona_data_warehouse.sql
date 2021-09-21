@@ -247,7 +247,7 @@ $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
-CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red')
+CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red,yellow,green')
     RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
