@@ -270,7 +270,7 @@ SELECT
                 AND calc_dates.variable = 'metric_rules_eval'
             )
         AND eval.url = $1)
-    WHERE rules.indication = $2;
+    WHERE rules.indication = ANY(string_to_array($2,','));
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
