@@ -140,6 +140,8 @@ CREATE TABLE api.metric_rules_eval(
 SELECT create_hypertable('api.metric_rules_eval', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_rules_eval(rule_id, url, date DESC);
 
+/*INTERNAL TABLES*/
+
 CREATE TABLE internal.acona_rules(
     rule_id VARCHAR(30) NOT NULL PRIMARY KEY,
     title_en TEXT,
@@ -149,13 +151,11 @@ CREATE TABLE internal.acona_rules(
     variable VARCHAR(30) NOT NULL,
     category TEXT,
     relevance INTEGER, /* 1-3 */
-    indication VARCHAR(5) NOT NULL, /* green, yellow, red */
+    indication VARCHAR(10) NOT NULL, /* green, yellow, red */
     condition JSON NOT NULL,
     more_de TEXT,
     more_en TEXT
 );
-
-/*INTERNAL TABLES*/
 
 CREATE TABLE internal.urls(
     url TEXT NOT NULL PRIMARY KEY,
@@ -316,34 +316,49 @@ $$ SECURITY DEFINER
 INSERT INTO internal.urls(url, user_id, domain_id, status, intervall, pagetype)
 VALUES
        ('https://www.acona.app/about', 1, 1, TRUE, 'daily', 1),
-       ('https://www.acona.app/metrics', 1, 1, TRUE, 'daily', 2);
+       ('https://www.acona.app/metrics', 1, 1, TRUE, 'daily', 2),
+       ('https://www.acona.app/legal', 1, 1, TRUE, 'daily', 1),
+       ('https://www.acona.app/info', 1, 1, TRUE, 'daily', 2),
+       ('https://www.acona.app/', 1, 1, TRUE, 'daily', 2);
 INSERT INTO internal.users(user_id, user_name, status, mail) VALUES (1, 'acona_user', TRUE, 'mail@mail.com');
 INSERT INTO internal.domains(domain_id, domain_name, users)
 VALUES (1, 'https://www.acona.app', '{1}');
 INSERT INTO api.metric_success_score_ratio(url, date, value)
 VALUES
-('https://www.acona.app/about', '2021-08-25', 0.3),
-('https://www.acona.app/about', '2021-08-26', 0.3),
-('https://www.acona.app/about', '2021-08-27', 0.5),
-('https://www.acona.app/about', '2021-08-28', 0.5),
-('https://www.acona.app/about', '2021-08-29', 0.5),
-('https://www.acona.app/about', '2021-08-30', 0.8),
-('https://www.acona.app/about', '2021-08-31', 0.5),
-('https://www.acona.app/about', '2021-09-01', 0.8),
-('https://www.acona.app/about', '2021-09-02', 0.8),
-('https://www.acona.app/about', '2021-09-03', 0.8),
-('https://www.acona.app/metrics', '2021-08-25', 0.3),
-('https://www.acona.app/metrics', '2021-08-26', 0.5),
-('https://www.acona.app/metrics', '2021-08-27', 0.6),
-('https://www.acona.app/metrics', '2021-08-28', 0.6),
-('https://www.acona.app/metrics', '2021-08-29', 0.6),
-('https://www.acona.app/metrics', '2021-08-31', 0.3),
-('https://www.acona.app/metrics', '2021-08-30', 0.7),
-('https://www.acona.app/metrics', '2021-09-01', 0.5),
-('https://www.acona.app/metrics', '2021-09-02', 0.6),
-('https://www.acona.app/metrics', '2021-09-03', 0.6),
-('https://www.acona.app/metrics', '2021-09-04', 0.6),
-('https://www.acona.app/metrics', '2021-09-05', 0.7);
+('https://www.acona.app/about', '2021-08-25', 30),
+('https://www.acona.app/about', '2021-08-26', 30),
+('https://www.acona.app/about', '2021-08-27', 50),
+('https://www.acona.app/about', '2021-08-28', 50),
+('https://www.acona.app/about', '2021-08-29', 50),
+('https://www.acona.app/about', '2021-08-30', 80),
+('https://www.acona.app/about', '2021-08-31', 50),
+('https://www.acona.app/about', '2021-09-01', 80),
+('https://www.acona.app/about', '2021-09-02', 80),
+('https://www.acona.app/about', '2021-09-03', 80),
+('https://www.acona.app/metrics', '2021-08-25', 30),
+('https://www.acona.app/metrics', '2021-08-26', 50),
+('https://www.acona.app/metrics', '2021-08-27', 60),
+('https://www.acona.app/metrics', '2021-08-28', 60),
+('https://www.acona.app/metrics', '2021-08-29', 60),
+('https://www.acona.app/metrics', '2021-08-31', 30),
+('https://www.acona.app/metrics', '2021-08-30', 70),
+('https://www.acona.app/metrics', '2021-09-01', 50),
+('https://www.acona.app/metrics', '2021-09-02', 60),
+('https://www.acona.app/metrics', '2021-09-03', 60),
+('https://www.acona.app/metrics', '2021-09-04', 60),
+('https://www.acona.app/metrics', '2021-09-05', 70),
+('https://www.acona.app/info', '2021-09-04', 60),
+('https://www.acona.app/info', '2021-09-05', 60),
+('https://www.acona.app/info', '2021-09-06', 60),
+('https://www.acona.app/info', '2021-09-07', 60),
+('https://www.acona.app/info', '2021-09-08', 60),
+('https://www.acona.app/legal', '2021-09-04', 80),
+('https://www.acona.app/legal', '2021-09-05', 80),
+('https://www.acona.app/legal', '2021-09-06', 80),
+('https://www.acona.app/legal', '2021-09-07', 80),
+('https://www.acona.app/legal', '2021-09-08', 80),
+('https://www.acona.app/', '2021-09-07', 80),
+('https://www.acona.app/', '2021-09-08', 80);
 INSERT INTO api.metric_d_bounces(url, date, value)
 VALUES
 ('https://www.acona.app/about', '2021-08-25', 10),
@@ -351,8 +366,17 @@ VALUES
 ('https://www.acona.app/about', '2021-08-27', 100),
 ('https://www.acona.app/about', '2021-08-28', 5);
 INSERT INTO internal.acona_rules(rule_id, title_en, recommendation_en, variable, indication, condition, more_en) VALUES
-('pagetitle_red', 'Pagetitle', 'This page does not have a page title. Go and create one!', 'page_title_char_count', 'red', '{"<" : [ { "var" : "var" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
-('pagetitle_green', 'Pagetitle', 'This page does have a page title. Good job!', 'page_title_char_count', 'green', '{"<" : [ { "var" : "var" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+('pagetitle_red', 'Pagetitle', 'This page does not have a page title. Go and create one!', 'page_title_char_count', 'red', '{"<" : [ { "var" : "value" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_green', 'Pagetitle', 'This page does have a page title. Good job!', 'page_title_char_count', 'green', '{"<" : [ { "var" : "value" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('url_words_count_yellow', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'yellow', '{ "and" : [
+  {">" : [ { "var" : "value" }, 5 ]},
+  {"<=" : [ { "var" : "value" }, 7 ] }
+] }', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('url_words_count_green', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'green', ' {"<=" : [ { "var" : "value" }, 5 ]}', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('url_words_count_red', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'red', ' {">" : [ { "var" : "value" }, 7 ]}', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('pagetitle_size_red', 'Page title size', 'Page title should be smaller than 60 characters.', 'page_title_char_count', 'red', '{">" : [ { "var" : "value" }, 60 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_size_green', 'Page title size', 'Your page title is smaller than 60 characters. :)', 'page_title_char_count', 'green', '{"<=" : [ { "var" : "value" }, 60 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+
 INSERT INTO api.metric_rules_eval(url, date, result, rule_id)
 VALUES
 ('https://www.acona.app/about', '2021-09-05', TRUE, 'pagetitle_red'),
@@ -360,12 +384,14 @@ VALUES
 ('https://www.acona.app/about', '2021-09-08', FALSE, 'pagetitle_red'),
 ('https://www.acona.app/about', '2021-09-05', TRUE, 'pagetitle_green'),
 ('https://www.acona.app/about', '2021-09-06', TRUE, 'pagetitle_green'),
-('https://www.acona.app/about', '2021-09-06', TRUE, 'pagetitle_size_red'),
-('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_size_red'),
-('https://www.acona.app/about', '2021-09-07', TRUE, 'pagetitle_size_red'),
-('https://www.acona.app/metrics', '2021-09-07', TRUE, 'pagetitle_size_red'),
 ('https://www.acona.app/about', '2021-09-07', FALSE, 'pagetitle_green'),
 ('https://www.acona.app/about', '2021-09-08', FALSE, 'pagetitle_green'),
+('https://www.acona.app/about', '2021-09-06', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/about', '2021-09-07', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/about', '2021-09-06', TRUE, 'url_words_count_yellow'),
+('https://www.acona.app/metrics', '2021-09-06', TRUE, 'url_words_count_yellow'),
+('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_size_red'),
+('https://www.acona.app/metrics', '2021-09-07', TRUE, 'pagetitle_size_red'),
 ('https://www.acona.app/metrics', '2021-09-06', TRUE, 'pagetitle_green'),
 ('https://www.acona.app/metrics', '2021-09-07', FALSE, 'pagetitle_green'),
 ('https://www.acona.app/metrics', '2021-09-08', FALSE, 'pagetitle_green'),
