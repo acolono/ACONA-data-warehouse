@@ -247,7 +247,7 @@ $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
-CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red')
+CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red,yellow,green')
     RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
@@ -270,7 +270,7 @@ SELECT
                 AND calc_dates.variable = 'metric_rules_eval'
             )
         AND eval.url = $1)
-    WHERE rules.indication = $2;
+    WHERE rules.indication = ANY(string_to_array($2,','));
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
