@@ -233,7 +233,7 @@ $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
-CREATE OR REPLACE FUNCTION api.recommendations(url TEXT, date DATE DEFAULT now(), indication TEXT DEFAULT 'red', langcode TEXT DEFAULT 'en')
+CREATE OR REPLACE FUNCTION api.recommendations(url TEXT, date DATE DEFAULT now(), indication TEXT DEFAULT 'red,yellow,green', langcode TEXT DEFAULT 'en')
     RETURNS table(indication text, title TEXT, recommendation TEXT, date date, more TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
@@ -251,7 +251,7 @@ FROM internal.acona_rules rules
     LEFT JOIN internal.recommendation
         ON (rules.rule_id = recommendation.rule_id AND
             recommendation.langcode = $4)
-WHERE rules.indication = $3;
+WHERE rules.indication = ANY(string_to_array($3, ','));
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
