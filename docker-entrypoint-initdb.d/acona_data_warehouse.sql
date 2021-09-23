@@ -157,6 +157,15 @@ CREATE TABLE internal.acona_rules(
     more_en TEXT
 );
 
+CREATE TABLE internal.recommendation(
+    rule_id VARCHAR(30) NOT NULL,
+    langcode VARCHAR(2) NOT NULL,
+    title TEXT,
+    recommendation_text TEXT,
+    more TEXT,
+    PRIMARY KEY (rule_id, langcode)
+);
+
 CREATE TABLE internal.urls(
     url TEXT NOT NULL PRIMARY KEY,
     user_id INTEGER NOT NULL,
@@ -224,17 +233,14 @@ $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
-CREATE OR REPLACE FUNCTION api.recommendations(url TEXT, date DATE DEFAULT now(), indication TEXT DEFAULT 'red')
-    RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
+CREATE OR REPLACE FUNCTION api.recommendations(url TEXT, date DATE DEFAULT now(), indication TEXT DEFAULT 'red', langcode TEXT DEFAULT 'en')
+    RETURNS table(indication text, title TEXT, recommendation TEXT, date date, more TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
-    rules.title_en,
-    rules.title_de,
-    rules.recommendation_en,
-    rules.recommendation_de,
+    recommendation.title,
+    recommendation.recommendation_text AS recommendation,
     eval.date,
-    rules.more_de,
-    rules.more_en,
+    recommendation.more,
     rules.category,
     rules.relevance
 FROM internal.acona_rules rules
@@ -242,22 +248,22 @@ FROM internal.acona_rules rules
         ON (rules.rule_id = eval.rule_id
             AND eval.date=$2
             AND eval.url = $1)
+    LEFT JOIN internal.recommendation
+        ON (rules.rule_id = recommendation.rule_id AND
+            recommendation.langcode = $4)
 WHERE rules.indication = $3;
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
-CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red,yellow,green')
-    RETURNS table(indication text, title_en TEXT, title_de TEXT, recommendation_en  TEXT, recommendation_de TEXT, date date, more_de TEXT, more_en TEXT, category TEXT, relevance INTEGER) as $$
+CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red,yellow,green', langcode TEXT DEFAULT 'en')
+    RETURNS table(indication text, title TEXT, recommendation  TEXT, date date, more TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
-    rules.title_en,
-    rules.title_de,
-    rules.recommendation_en,
-    rules.recommendation_de,
+    recommendation.title,
+    recommendation.recommendation_text AS recommendation,
     eval.date,
-    rules.more_de,
-    rules.more_en,
+    recommendation.more,
     rules.category,
     rules.relevance
     FROM internal.acona_rules rules
@@ -270,6 +276,9 @@ SELECT
                 AND calc_dates.variable = 'metric_rules_eval'
             )
         AND eval.url = $1)
+    LEFT JOIN internal.recommendation
+        ON (rules.rule_id = recommendation.rule_id AND
+            recommendation.langcode = $3)
     WHERE rules.indication = ANY(string_to_array($2,','));
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
@@ -365,17 +374,27 @@ VALUES
 ('https://www.acona.app/about', '2021-08-26', 3),
 ('https://www.acona.app/about', '2021-08-27', 100),
 ('https://www.acona.app/about', '2021-08-28', 5);
-INSERT INTO internal.acona_rules(rule_id, title_en, recommendation_en, variable, indication, condition, more_en) VALUES
-('pagetitle_red', 'Pagetitle', 'This page does not have a page title. Go and create one!', 'page_title_char_count', 'red', '{"<" : [ { "var" : "value" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
-('pagetitle_green', 'Pagetitle', 'This page does have a page title. Good job!', 'page_title_char_count', 'green', '{"<" : [ { "var" : "value" }, 1 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
-('url_words_count_yellow', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'yellow', '{ "and" : [
+INSERT INTO internal.acona_rules(rule_id, variable, indication, condition) VALUES
+('pagetitle_red', 'page_title_char_count', 'red', '{"<" : [ { "var" : "value" }, 1 ]}'),
+('pagetitle_green', 'page_title_char_count', 'green', '{"<" : [ { "var" : "value" }, 1 ]}'),
+('url_words_count_yellow', 'page_url_words_count', 'yellow', '{ "and" : [
   {">" : [ { "var" : "value" }, 5 ]},
   {"<=" : [ { "var" : "value" }, 7 ] }
-] }', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
-('url_words_count_green', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'green', ' {"<=" : [ { "var" : "value" }, 5 ]}', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
-('url_words_count_red', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'page_url_words_count', 'red', ' {">" : [ { "var" : "value" }, 7 ]}', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
-('pagetitle_size_red', 'Page title size', 'Page title should be smaller than 60 characters.', 'page_title_char_count', 'red', '{">" : [ { "var" : "value" }, 60 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
-('pagetitle_size_green', 'Page title size', 'Your page title is smaller than 60 characters. :)', 'page_title_char_count', 'green', '{"<=" : [ { "var" : "value" }, 60 ]}', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+] }'),
+('url_words_count_green', 'page_url_words_count', 'green', ' {"<=" : [ { "var" : "value" }, 5 ]}'),
+('url_words_count_red', 'page_url_words_count', 'red', ' {">" : [ { "var" : "value" }, 7 ]}'),
+('pagetitle_size_red', 'page_title_char_count', 'red', '{">" : [ { "var" : "value" }, 60 ]}'),
+('pagetitle_size_green', 'page_title_char_count', 'green', '{"<=" : [ { "var" : "value" }, 60 ]}');
+
+INSERT INTO internal.recommendation(rule_id, langcode, title, recommendation_text, more) VALUES
+('pagetitle_red', 'en', 'Pagetitle', 'This page does not have a page title. Go and create one!', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_green', 'en', 'Pagetitle', 'This page does have a page title. Good job!', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('url_words_count_yellow', 'en', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('url_words_count_green', 'en', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('url_words_count_red', 'en', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
+('pagetitle_size_red', 'en', 'Page title size', 'Page title should be smaller than 60 characters.', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_size_green', 'en', 'Page title size', 'Your page title is smaller than 60 characters. :)', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+
 
 INSERT INTO api.metric_rules_eval(url, date, result, rule_id)
 VALUES
