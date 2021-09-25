@@ -393,7 +393,14 @@ INSERT INTO internal.recommendation(rule_id, langcode, title, recommendation_tex
 ('url_words_count_green', 'en', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
 ('url_words_count_red', 'en', 'URL size', 'Ideally your page should not have more than 5-7 words in the url.', 'After about 5 words in your URL search engine algorithms typically will just weight those words less.'),
 ('pagetitle_size_red', 'en', 'Page title size', 'Page title should be smaller than 60 characters.', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
-('pagetitle_size_green', 'en', 'Page title size', 'Your page title is smaller than 60 characters. :)', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag');
+('pagetitle_size_green', 'en', 'Page title size', 'Your page title is smaller than 60 characters. :)', 'More info about pagetitle here: https://moz.com/learn/seo/title-tag'),
+('pagetitle_red', 'de', 'Pagetitle', 'Diese Seite hat keinen Pagetitel. Es wird empfohlen einen Pagetitel anzulegen!', 'Mehr Infos zu pagetitle hier: https://moz.com/learn/seo/title-tag'),
+('pagetitle_green', 'de', 'Pagetitle', 'Diese Seite hat einen Pagetitel. Gute Arbeit!', 'Mehr Infos zu pagetitle hier: https://moz.com/learn/seo/title-tag'),
+('url_words_count_yellow', 'de', 'Länge URL', 'Idealerweise besteht die URL aus maximal 5-7 Wörtern.', 'Typischerweise werten Suchmaschinen vor allem die ersten Wörter in der URL.'),
+('url_words_count_green', 'de', 'Länge URL', 'Die URL dieser Seite besteht aus maximal 5-7 Wörtern. :)', 'Typischerweise werten Suchmaschinen vor allem die ersten Wörter in der URL.'),
+('url_words_count_red', 'de', 'Länge URL', 'Idealerweise besteht die URL aus maximal 5-7 Wörtern.', 'Typischerweise werten Suchmaschinen vor allem die ersten Wörter in der URL.'),
+('pagetitle_size_red', 'de', 'Länge Pagetitle', 'Der Pagetitle sollte nicht länger sein als 60 Zeichen.', 'Mehr Infos zu pagetitle hier: https://moz.com/learn/seo/title-tag'),
+('pagetitle_size_green', 'de', 'Länge Pagetitle', 'Der Pagetitle ist nicht länger als 60 Zeichen. :)', 'Mehr Infos zu pagetitle hier: https://moz.com/learn/seo/title-tag');
 
 
 INSERT INTO api.metric_rules_eval(url, date, result, rule_id)
