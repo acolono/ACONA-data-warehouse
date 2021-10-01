@@ -284,6 +284,30 @@ $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
+CREATE OR REPLACE FUNCTION api.acona_urls_by_domain(domain TEXT)
+    RETURNS table(url text) as $$
+SELECT
+    urls.url
+FROM internal.urls urls
+WHERE urls.status = 't' AND urls.domain_id = (
+    SELECT domain_id
+    FROM internal.domains domains
+    WHERE domains.domain_name = $1
+);
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.acona_urls()
+    RETURNS table(url text) as $$
+SELECT
+    urls.url
+FROM internal.urls urls
+WHERE urls.status = 't';
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
 /*USERS AND ROLES*/
 
 create role api_anon;
