@@ -285,9 +285,10 @@ $$ LANGUAGE SQL IMMUTABLE
     SET search_path = internal, pg_temp;
 
 CREATE OR REPLACE FUNCTION api.acona_urls_by_domain(domain TEXT)
-    RETURNS table(url text) as $$
+    RETURNS table(url text, domain_id text) as $$
 SELECT
-    urls.url
+    urls.url,
+    urls.domain_id
 FROM internal.urls urls
 WHERE urls.status = 't' AND urls.domain_id = (
     SELECT domain_id
@@ -299,9 +300,10 @@ $$ LANGUAGE SQL IMMUTABLE
                 SET search_path = internal, pg_temp;
 
 CREATE OR REPLACE FUNCTION api.acona_urls()
-    RETURNS table(url text) as $$
+    RETURNS table(url text, domain_id text) as $$
 SELECT
-    urls.url
+    urls.url,
+    urls.domain_id
 FROM internal.urls urls
 WHERE urls.status = 't';
 $$ LANGUAGE SQL IMMUTABLE
