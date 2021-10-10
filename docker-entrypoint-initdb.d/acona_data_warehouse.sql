@@ -37,6 +37,194 @@ CREATE TABLE api.metric_d_unique_visits(
 SELECT create_hypertable('api.metric_d_unique_visits', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_d_unique_visits(url, date DESC);
 
+CREATE TABLE api.metric_d_conversions(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_conversions', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_conversions(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_total(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_total', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_total(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_average(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_average', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_average(url, date DESC);
+
+CREATE TABLE api.metric_d_visits_converted(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visits_converted', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visits_converted(url, date DESC);
+
+CREATE TABLE api.metric_d_bounce_rate(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_bounce_rate', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_bounce_rate(url, date DESC);
+
+/* FORECASTS UPPER VALUES */
+
+CREATE TABLE api.metric_d_bounces_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_bounces_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_bounces_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_page_views_f_upper (
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_page_views_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_page_views_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_visits_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visits_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visits_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_unique_visits_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_unique_visits_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_unique_visits_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_conversions_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_conversions_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_conversions_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_total_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_total_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_total_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_average_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_average_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_average_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_visits_converted_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visits_converted_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visits_converted_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_bounce_rate_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_bounce_rate_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_bounce_rate_f_upper(url, date DESC);
+
+/*FORECASTS LOWER VALUES*/
+
+CREATE TABLE api.metric_d_bounces_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_bounces_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_bounces_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_page_views_f_lower (
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_page_views_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_page_views_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_visits_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visits_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visits_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_unique_visits_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_unique_visits_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_unique_visits_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_conversions_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_conversions_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_conversions_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_total_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_total_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_total_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_visit_time_average_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visit_time_average_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visit_time_average_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_visits_converted_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_visits_converted_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_visits_converted_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_bounce_rate_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_bounce_rate_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_bounce_rate_f_lower(url, date DESC);
+
 /*PAGE VARIABLES*/
 
 CREATE TABLE api.var_page_ttfb_seconds(
@@ -139,6 +327,38 @@ CREATE TABLE api.metric_rules_eval(
 );
 SELECT create_hypertable('api.metric_rules_eval', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_rules_eval(rule_id, url, date DESC);
+
+CREATE TABLE "metric_d_bounce_rate"(
+    url TEXT,
+    date DATE NOT NULL,
+    value DECIMAL
+);
+SELECT create_hypertable('metric_d_bounce_rate', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_bounce_rate(url, date DESC);
+
+CREATE TABLE "metric_d_visit_time_total"(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('metric_d_visit_time_total', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_visit_time_total(url, date DESC);
+
+CREATE TABLE "metric_d_visit_time_average"(
+    url TEXT,
+    date DATE NOT NULL,
+    value DECIMAL
+);
+SELECT create_hypertable('metric_d_visit_time_average', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_visit_time_average(url, date DESC);
+
+CREATE TABLE "metric_d_visits_converted"(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('metric_d_visits_converted', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_visits_converted(url, date DESC);
 
 /*INTERNAL TABLES*/
 
