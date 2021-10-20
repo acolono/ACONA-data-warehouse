@@ -328,37 +328,23 @@ CREATE TABLE api.metric_rules_eval(
 SELECT create_hypertable('api.metric_rules_eval', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_rules_eval(rule_id, url, date DESC);
 
-CREATE TABLE "metric_d_bounce_rate"(
-    url TEXT,
-    date DATE NOT NULL,
-    value DECIMAL
-);
-SELECT create_hypertable('metric_d_bounce_rate', 'date', create_default_indexes=>FALSE);
-CREATE INDEX ON metric_d_bounce_rate(url, date DESC);
+/*NOTIFICATIONS*/
 
-CREATE TABLE "metric_d_visit_time_total"(
-    url TEXT,
-    date DATE NOT NULL,
-    value INTEGER
+CREATE TABLE api.notification_texts(
+    notification_id VARCHAR(30) NOT NULL,
+    langcode VARCHAR(2) NOT NULL,
+    title TEXT,
+    text TEXT
 );
-SELECT create_hypertable('metric_d_visit_time_total', 'date', create_default_indexes=>FALSE);
-CREATE INDEX ON metric_d_visit_time_total(url, date DESC);
+CREATE INDEX ON api.notification_texts(notification_id, langcode);
 
-CREATE TABLE "metric_d_visit_time_average"(
-    url TEXT,
+CREATE TABLE api.notifications(
+    notification_id VARCHAR(30) NOT NULL PRIMARY KEY,
+    url TEXT NOT NULL,
     date DATE NOT NULL,
-    value DECIMAL
+    variable_id INTEGER
 );
-SELECT create_hypertable('metric_d_visit_time_average', 'date', create_default_indexes=>FALSE);
-CREATE INDEX ON metric_d_visit_time_average(url, date DESC);
-
-CREATE TABLE "metric_d_visits_converted"(
-    url TEXT,
-    date DATE NOT NULL,
-    value INTEGER
-);
-SELECT create_hypertable('metric_d_visits_converted', 'date', create_default_indexes=>FALSE);
-CREATE INDEX ON metric_d_visits_converted(url, date DESC);
+CREATE INDEX ON api.notifications(url);
 
 /*INTERNAL TABLES*/
 
@@ -443,7 +429,6 @@ CREATE TABLE internal.page_types(
     domain_id INTEGER NOT NULL, /* domain/group id */
     title TEXT /* page_type/node title */
 );
-
 
 /*FUNCTIONS*/
 
@@ -609,6 +594,21 @@ SELECT
     var.var_machine_name,
     var.var_data_table
 FROM internal.variables var;
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.notifications(url TEXT, langcode TEXT DEFAULT 'en')
+    RETURNS table(date DATE, title TEXT, text TEXT) as $$
+SELECT
+    notifications.date,
+    texts.title,
+    texts.text
+FROM api.notifications notifications
+         LEFT JOIN api.notification_texts texts
+                   ON (notifications.notification_id = texts.notification_id AND
+                       texts.langcode = $2)
+WHERE notifications.url = $1;
 $$ LANGUAGE SQL IMMUTABLE
                 SECURITY DEFINER
                 SET search_path = internal, pg_temp;
@@ -783,3 +783,14 @@ VALUES
 (3, 4, 6, 20, 'percent'),
 (6, 22, 8, 80, '100'),
 (7, 22, 9, 20, '1000');
+INSERT INTO api.notification_texts(notification_id, langcode, title, text)
+VALUES
+(1, 'en', 'Unexpected value', 'Attention, average visit time for this page is lower than expected. Please check if something is wrong.'),
+(1, 'de', 'Außergewöhnlicher Wert', 'Vorsicht, die durchschnittliche Besuchszeit ist für diese Seite geringer als erwartet. Es wird empfohlen den Inhalt zu kontrollieren.'),
+(2, 'en', 'Unexpected value', 'Attention, average visit time for this page is lower than expected. Please check if something is wrong.'),
+(2, 'de', 'Außergewöhnlicher Wert', 'Vorsicht, die durchschnittliche Besuchszeit ist für diese Seite geringer als erwartet. Es wird empfohlen den Inhalt zu kontrollieren.');
+
+INSERT INTO api.notifications(notification_id, url, date, variable_id)
+VALUES
+(1, 'https://www.acona.app/about', '2020-10-01', 10),
+(2, 'https://www.acona.app/metrics', '2020-10-01', 10);
