@@ -482,13 +482,14 @@ FROM internal.acona_rules rules
     LEFT JOIN internal.recommendation
         ON (rules.rule_id = recommendation.rule_id AND
             recommendation.langcode = $4)
-WHERE rules.indication = ANY(string_to_array($3, ','));
+WHERE rules.indication = ANY(string_to_array($3, ','))
+  AND eval.result = 't';
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
 
 CREATE OR REPLACE FUNCTION api.recommendations_last(url TEXT, indication TEXT DEFAULT 'red,yellow,green', langcode TEXT DEFAULT 'en')
-    RETURNS table(indication text, title TEXT, recommendation  TEXT, date date, more TEXT, category TEXT, relevance INTEGER) as $$
+    RETURNS table(indication text, title TEXT, recommendation TEXT, date date, more TEXT, category TEXT, relevance INTEGER) as $$
 SELECT
     rules.indication,
     recommendation.title,
@@ -510,7 +511,8 @@ SELECT
     LEFT JOIN internal.recommendation
         ON (rules.rule_id = recommendation.rule_id AND
             recommendation.langcode = $3)
-    WHERE rules.indication = ANY(string_to_array($2,','));
+    WHERE rules.indication = ANY(string_to_array($2,','))
+      AND eval.result = 't';
 $$ LANGUAGE SQL IMMUTABLE
     SECURITY DEFINER
     SET search_path = internal, pg_temp;
