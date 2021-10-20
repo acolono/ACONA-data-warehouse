@@ -404,11 +404,13 @@ CREATE TABLE internal.users(
     mail TEXT
 );
 
+/* groups */
 CREATE TABLE internal.domains(
     domain_id INTEGER NOT NULL PRIMARY KEY,
     domain_name TEXT,
     users INTEGER[],
-    synonyms TEXT[]
+    synonyms TEXT[],
+    status BOOLEAN
 );
 
 CREATE TABLE internal.var_calc_dates(
@@ -418,6 +420,30 @@ CREATE TABLE internal.var_calc_dates(
 );
 SELECT create_hypertable('internal.var_calc_dates', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON internal.var_calc_dates(variable, url);
+
+/* acona_variable content type */
+CREATE TABLE internal.variables(
+    id INTEGER NOT NULL PRIMARY KEY, /* variable/node id */
+    var_machine_name TEXT, /* field_acona_var_machine_name */
+    var_data_table TEXT /* field_acona_data_table */
+);
+
+/* acona_variable_definition paragraph type*/
+CREATE TABLE internal.var_success_score_def(
+    id INTEGER NOT NULL PRIMARY KEY, /* paragraph id */
+    page_type_id INTEGER NOT NULL, /* referencing page_type: acona_page_types.field_acona_var_definitions. */
+    variable_id INTEGER, /* referenced variable id: acona_variable. */
+    relevance INTEGER, /* field_acona_var_relevance: 1-100 */
+    type TEXT /* field_acona_var_type: 100000, 10000, 1000, 100, 10, 1, percent, boolean */
+);
+
+/* acona_page_types content type*/
+CREATE TABLE internal.page_types(
+    id INTEGER NOT NULL PRIMARY KEY, /* page_type/node id */
+    domain_id INTEGER NOT NULL, /* domain/group id */
+    title TEXT /* page_type/node title */
+);
+
 
 /*FUNCTIONS*/
 
@@ -519,6 +545,17 @@ $$ LANGUAGE SQL IMMUTABLE
                 SECURITY DEFINER
                 SET search_path = internal, pg_temp;
 
+CREATE OR REPLACE FUNCTION api.acona_urls_by_domain_id(domain_id INTEGER)
+    RETURNS table(url text, domain_id text) as $$
+SELECT
+    urls.url,
+    urls.domain_id
+FROM internal.urls urls
+WHERE urls.domain_id = $1 and urls.status = 't';
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
 CREATE OR REPLACE FUNCTION api.acona_urls()
     RETURNS table(url text, domain_id text) as $$
 SELECT
@@ -526,6 +563,52 @@ SELECT
     urls.domain_id
 FROM internal.urls urls
 WHERE urls.status = 't';
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.acona_domains()
+    RETURNS table(domain_id text, domain_name text) as $$
+SELECT
+    domains.domain_id,
+    domains.domain_name
+FROM internal.domains domains;
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.acona_page_types(domain_id INTEGER)
+    RETURNS table(id integer, domain_id integer, title text) as $$
+SELECT
+    page_types.id,
+    page_types.domain_id,
+    page_types.title
+FROM internal.page_types page_types
+WHERE page_types.domain_id = $1;
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.acona_success_score_defs(page_type_id INTEGER)
+    RETURNS table(page_type_id integer, variable_id integer, relevance integer, type text) as $$
+SELECT
+    score_def.page_type_id,
+    score_def.variable_id,
+    score_def.relevance,
+    score_def.type
+FROM internal.var_success_score_def as score_def
+WHERE score_def.page_type_id = $1;
+$$ LANGUAGE SQL IMMUTABLE
+                SECURITY DEFINER
+                SET search_path = internal, pg_temp;
+
+CREATE OR REPLACE FUNCTION api.acona_variables()
+    RETURNS table(id integer, var_machine_name text, var_data_table text) as $$
+SELECT
+    var.id,
+    var.var_machine_name,
+    var.var_data_table
+FROM internal.variables var;
 $$ LANGUAGE SQL IMMUTABLE
                 SECURITY DEFINER
                 SET search_path = internal, pg_temp;
@@ -674,3 +757,29 @@ INSERT INTO internal.var_calc_dates(variable, date, url)
 VALUES
 ('metric_rules_eval', '2021-09-06', 'https://www.acona.app/about'),
 ('metric_rules_eval', '2021-09-06', 'https://www.acona.app/metrics');
+INSERT INTO internal.variables(id, var_machine_name, var_data_table)
+VALUES
+(3, 'page_views', 'metric_d_page_views'),
+(19, 'bounce_rate', 'metric_d_bounce_rate'),
+(18, 'visits_converted', 'metric_d_visits_converted'),
+(9, 'visit_time_total', 'metric_d_visit_time_total'),
+(17, 'conversions', 'metric_d_conversions'),
+(7, 'visits', 'metric_d_visits'),
+(14, 'organic_position_avg', 'metric_d_organic_position_avg'),
+(13, 'organic_ctr', 'metric_d_organic_ctr'),
+(12, 'organic_impressions', 'metric_d_organic_impressions'),
+(10, 'visit_time_average', 'metric_d_visit_time_average'),
+(11, 'organic_clicks', 'metric_d_organic_clicks'),
+(8, 'unique_visits', 'metric_d_unique_visits'),
+(6, 'bounces', 'metric_d_bounces');
+INSERT INTO internal.page_types(id, domain_id, title)
+VALUES
+(4, 1, 'Landingpage'),
+(22, 1, 'Frontpage');
+INSERT INTO internal.var_success_score_def(id, page_type_id, variable_id, relevance, type)
+VALUES
+(1, 4, 3, 70, '1000'),
+(2, 4, 7, 10, '1000'),
+(3, 4, 6, 20, 'percent'),
+(6, 22, 8, 80, '100'),
+(7, 22, 9, 20, '1000');
