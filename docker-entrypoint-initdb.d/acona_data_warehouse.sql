@@ -77,6 +77,38 @@ CREATE TABLE api.metric_d_bounce_rate(
 SELECT create_hypertable('api.metric_d_bounce_rate', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_d_bounce_rate(url, date DESC);
 
+CREATE TABLE api.metric_d_organic_impressions(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_impressions', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_impressions(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_clicks(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_clicks', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_clicks(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_ctr(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_ctr', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_ctr(url, date DESC);
+
+CREATE TABLE metric_d_organic_position_avg(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('metric_d_organic_position_avg', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_organic_position_avg(url, date DESC);
+
 /* FORECASTS UPPER VALUES */
 
 CREATE TABLE api.metric_d_bounces_f_upper(
@@ -151,6 +183,38 @@ CREATE TABLE api.metric_d_bounce_rate_f_upper(
 SELECT create_hypertable('api.metric_d_bounce_rate_f_upper', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_d_bounce_rate_f_upper(url, date DESC);
 
+CREATE TABLE api.metric_d_organic_impressions_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_impressions_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON aapi.metric_d_organic_impressions_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_clicks_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_clicks_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_clicks_f_upper(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_ctr_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_ctr_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_ctr_f_upper(url, date DESC);
+
+CREATE TABLE metric_d_organic_position_avg_f_upper(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('metric_d_organic_position_avg_f_upper', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_organic_position_avg_f_upper(url, date DESC);
+
 /*FORECASTS LOWER VALUES*/
 
 CREATE TABLE api.metric_d_bounces_f_lower(
@@ -224,6 +288,38 @@ CREATE TABLE api.metric_d_bounce_rate_f_lower(
 );
 SELECT create_hypertable('api.metric_d_bounce_rate_f_lower', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON api.metric_d_bounce_rate_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_impressions_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_impressions_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON aapi.metric_d_organic_impressions_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_clicks_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_clicks_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_clicks_f_lower(url, date DESC);
+
+CREATE TABLE api.metric_d_organic_ctr_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.metric_d_organic_ctr_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON api.metric_d_organic_ctr_f_lower(url, date DESC);
+
+CREATE TABLE metric_d_organic_position_avg_f_lower(
+    url TEXT,
+    date DATE NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('metric_d_organic_position_avg_f_lower', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON metric_d_organic_position_avg_f_lower(url, date DESC);
 
 /*PAGE VARIABLES*/
 
@@ -331,7 +427,7 @@ CREATE INDEX ON api.metric_rules_eval(rule_id, url, date DESC);
 /*NOTIFICATIONS*/
 
 CREATE TABLE api.notification_texts(
-    notification_id VARCHAR(30) NOT NULL,
+    notification_id VARCHAR NOT NULL,
     langcode VARCHAR(2) NOT NULL,
     title TEXT,
     text TEXT
@@ -339,7 +435,7 @@ CREATE TABLE api.notification_texts(
 CREATE INDEX ON api.notification_texts(notification_id, langcode);
 
 CREATE TABLE api.notifications(
-    notification_id VARCHAR(30) NOT NULL PRIMARY KEY,
+    notification_id VARCHAR NOT NULL PRIMARY KEY,
     url TEXT NOT NULL,
     date DATE NOT NULL,
     variable_id INTEGER
