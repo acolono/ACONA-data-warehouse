@@ -379,6 +379,56 @@ CREATE TABLE api.var_page_content_html(
 SELECT create_hypertable('api.var_page_content_html', 'datetime', create_default_indexes=>FALSE);
 CREATE INDEX ON api.var_page_content_html(url, datetime DESC);
 
+CREATE TABLE api.var_page_title_char_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_title_char_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_title_char_count(url, datetime DESC);
+
+/* HUMANTXT PAGE VARIABLES */
+
+CREATE TABLE api.var_ht_title(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_ht_title', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_ht_title(url, datetime DESC);
+
+CREATE TABLE api.var_ht_title_char_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_ht_title_char_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_ht_title_char_count(url, datetime DESC);
+
+CREATE TABLE api.var_ht_content_html(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_ht_content_html', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_ht_content_html(url, datetime DESC);
+
+CREATE TABLE api.var_ht_excerpt(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_ht_excerpt', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_ht_excerpt(url, datetime DESC);
+
+CREATE TABLE api.var_ht_word_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_ht_word_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_ht_word_count(url, datetime DESC);
+
 /*SUCCESS SCORES*/
 
 CREATE TABLE api.metric_success_score_type1_ratio(
@@ -496,12 +546,20 @@ CREATE TABLE internal.domains(
 );
 
 CREATE TABLE internal.var_calc_dates(
-    variable VARCHAR(30) NOT NULL,
+    variable VARCHAR NOT NULL,
     date DATE NOT NULL,
     url TEXT NOT NULL
 );
 SELECT create_hypertable('internal.var_calc_dates', 'date', create_default_indexes=>FALSE);
 CREATE INDEX ON internal.var_calc_dates(variable, url);
+
+CREATE TABLE internal.var_import_dates(
+    variable VARCHAR NOT NULL,
+    date DATE NOT NULL,
+    url TEXT NOT NULL
+);
+SELECT create_hypertable('internal.var_import_dates', 'date', create_default_indexes=>FALSE);
+CREATE INDEX ON internal.var_import_dates(variable, url);
 
 /* acona_variable content type */
 CREATE TABLE internal.variables(
@@ -757,8 +815,8 @@ VALUES
        ('https://www.acona.app/info', 1, 1, TRUE, 'daily', 2),
        ('https://www.acona.app/', 1, 1, TRUE, 'daily', 2);
 INSERT INTO internal.users(user_id, user_name, status, mail) VALUES (1, 'acona_user', TRUE, 'mail@mail.com');
-INSERT INTO internal.domains(domain_id, domain_name, users)
-VALUES (1, 'https://www.acona.app', '{1}');
+INSERT INTO internal.domains(domain_id, domain_name, users, status)
+VALUES (1, 'https://www.acona.app', '{1}', 't');
 INSERT INTO api.metric_success_score_ratio(url, date, value)
 VALUES
 ('https://www.acona.app/about', '2021-08-25', 30),
