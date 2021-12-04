@@ -331,13 +331,21 @@ CREATE TABLE api.var_page_ttfb_seconds(
 SELECT create_hypertable('api.var_page_ttfb_seconds', 'datetime', create_default_indexes=>FALSE);
 CREATE INDEX ON api.var_page_ttfb_seconds (url, datetime DESC);
 
-CREATE TABLE api.var_page_h1_number(
+CREATE TABLE api.var_page_h1(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value TEXT
+);
+SELECT create_hypertable('api.var_page_h1', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_h1(url, datetime DESC);
+
+CREATE TABLE api.var_page_h1_count(
     url TEXT NOT NULL,
     datetime TIMESTAMPTZ NOT NULL,
     value INTEGER
 );
-SELECT create_hypertable('api.var_page_h1_number', 'datetime', create_default_indexes=>FALSE);
-CREATE INDEX ON api.var_page_h1_number(url, datetime DESC);
+SELECT create_hypertable('api.var_page_h1_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_h1_count(url, datetime DESC);
 
 CREATE TABLE api.var_page_metadescription(
     url TEXT NOT NULL,
@@ -386,6 +394,46 @@ CREATE TABLE api.var_page_title_char_count(
 );
 SELECT create_hypertable('api.var_page_title_char_count', 'datetime', create_default_indexes=>FALSE);
 CREATE INDEX ON api.var_page_title_char_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_links_internal_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_links_internal_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_links_internal_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_links_external_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_links_external_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_links_external_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_images_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_images_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_images_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_images_without_alt_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_images_without_alt_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_images_without_alt_count(url, datetime DESC);
+
+CREATE TABLE api.var_page_images_without_size_count(
+    url TEXT NOT NULL,
+    datetime TIMESTAMPTZ NOT NULL,
+    value INTEGER
+);
+SELECT create_hypertable('api.var_page_images_without_size_count', 'datetime', create_default_indexes=>FALSE);
+CREATE INDEX ON api.var_page_images_without_size_count(url, datetime DESC);
 
 /* HUMANTXT PAGE VARIABLES */
 
